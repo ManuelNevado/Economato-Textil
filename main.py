@@ -9,7 +9,7 @@ class Game:
         pygame.init()
         self.WINDOW_SIZE = (800, 600)
         self.screen = pygame.display.set_mode(self.WINDOW_SIZE)
-        pygame.display.set_caption("Castlevania Roguelike")
+        pygame.display.set_caption("Economato-Textil")
         
         # Initialize MVC components
         self.model = GameModel()
@@ -17,14 +17,13 @@ class Game:
         self.controller = GameController(self.model, self.view)
         
         self.clock = pygame.time.Clock()
-        self.running = True
 
     def run(self):
-        while self.running:
+        while self.model.running:
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    self.model.running = False
                 self.controller.handle_event(event)
             
             # Update game state

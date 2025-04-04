@@ -1,4 +1,4 @@
-# Castlevania Roguelike
+# Economato-Textil
 
 A roguelike game inspired by Castlevania, developed in Python using Pygame and following the Model-View-Controller (MVC) architectural pattern.
 
@@ -70,7 +70,7 @@ We welcome contributions to the Economato-Textil project! Please follow these st
    * Clone your fork locally:
 
      ```bash
-     git clone https://github.com/YOUR_USERNAME/Economato-Textil.git
+     git clone https://github.com/ManuelNevado/Economato-Textil.git
      ```
 
 2. **Create a Feature Branch**

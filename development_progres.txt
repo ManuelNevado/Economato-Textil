@@ -1,0 +1,42 @@
+I've implemented a complete menu system with the following features:
+
+Menu items: "Start Game", "Options", and "Settings"
+Navigation:
+Use UP/DOWN arrow keys to navigate menu items
+ENTER to select an item
+ESC to return to menu from other states
+Visual feedback:
+Title at the top
+Selected item highlighted in yellow
+Other items in white
+The menu system follows the MVC pattern:
+
+Model: Tracks menu state, selected item, and game state
+View: Renders the menu with proper formatting and highlighting
+Controller: Handles keyboard input for menu navigation
+You can now:
+
+Navigate through menu items using UP/DOWN arrow keys
+Select an item with ENTER to transition to that game state
+Return to the menu from any state using ESC
+The menu will be the first thing players see when starting the game, and it provides a clean interface for navigating between different game states.
+
+
+
+I've made the following changes to the GameView class:
+
+Added import os to handle file paths properly
+In the constructor:
+Added code to load the background image from the assets folder
+Scaled the image to fit the screen size
+In the _render_menu method:
+Added code to draw the background image
+Added a semi-transparent black overlay to improve text readability
+The menu text (title and options) will now be drawn on top of this background
+The background image will now be visible in the menu with a slight darkening effect to ensure the menu text remains readable. The semi-transparent overlay helps create contrast between the background and the text.
+
+Let me know if you'd like to adjust any aspects of this implementation, such as:
+
+The transparency level of the overlay (currently at 128, where 0 is fully transparent and 255 is fully opaque)
+The scaling of the background image
+The position of the menu items relative to the background

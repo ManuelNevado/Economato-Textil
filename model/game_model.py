@@ -6,10 +6,18 @@ class GameModel:
         self.enemies = []
         self.items = []
         self.space_pressed = False  # Add space key state
-        self.game_state = "MENU"  # States: MENU, GAME, OPTIONS, SETTINGS, EXIT
+        self.game_state = "MENU"  # States: MENU, GAME, SETTINGS, EXIT
         self.selected_menu_item = 0
-        self.menu_items = ["Start Game", "Options", "Settings", "Exit"]
+        self.menu_items = ["Start Game", "Settings", "Exit"]
         self.running = True
+        
+        # Settings state
+        self.settings_selected_item = 0
+        self.main_volume = 100
+        self.music_volume = 100
+        self.fx_volume = 100
+        self.settings_items = ["Main Volume", "Music Volume", "FX Volume", "Back"]
+        self.active_slider = None  # For slider adjustment
         
     def update(self):
         # Update game state
@@ -43,9 +51,26 @@ class GameModel:
         selected = self.menu_items[self.selected_menu_item]
         if selected == "Start Game":
             self.game_state = "GAME"
-        elif selected == "Options":
-            self.game_state = "OPTIONS"
         elif selected == "Settings":
             self.game_state = "SETTINGS"
         elif selected == "Exit":
+            self.game_state = "EXIT"
             self.running = False
+            
+    def select_next_settings_item(self):
+        self.settings_selected_item = (self.settings_selected_item + 1) % len(self.settings_items)
+        
+    def select_previous_settings_item(self):
+        self.settings_selected_item = (self.settings_selected_item - 1) % len(self.settings_items)
+        
+    def adjust_selected_volume(self, amount):
+        if self.settings_selected_item == 0:  # Main Volume
+            self.main_volume = max(0, min(100, self.main_volume + amount))
+        elif self.settings_selected_item == 1:  # Music Volume
+            self.music_volume = max(0, min(100, self.music_volume + amount))
+        elif self.settings_selected_item == 2:  # FX Volume
+            self.fx_volume = max(0, min(100, self.fx_volume + amount))
+            
+    def select_settings_item(self):
+        if self.settings_items[self.settings_selected_item] == "Back":
+            self.game_state = "MENU"

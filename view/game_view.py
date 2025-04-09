@@ -34,6 +34,8 @@ class GameView:
             self._render_menu(model)
         elif model.game_state == "SETTINGS":
             self._render_settings(model)
+        elif model.game_state == "SAVE_MENU":
+            self._render_save_menu(model)
         else:
             # Draw background
             self.screen.blit(self.background_image, (0, 0))
@@ -136,6 +138,43 @@ class GameView:
                 handle_height = 20
                 pygame.draw.rect(self.screen, (200, 200, 200),
                                (handle_x, y_pos - handle_height // 2, 4, handle_height))
+    
+    def _render_save_menu(self, model):
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+        
+        # Draw blurred background
+        self.screen.blit(self.blurred_background, (0, 0))
+        
+        # Add a semi-transparent overlay to make text more readable
+        overlay = pygame.Surface((screen_width, screen_height))
+        overlay.fill((0, 0, 0))
+        overlay.set_alpha(160)  # Slightly more opaque for better contrast
+        self.screen.blit(overlay, (0, 0))
+        
+        # Title
+        title = self.font.render("Select Save Slot", True, (255, 255, 255))
+        title_rect = title.get_rect(center=(screen_width // 2, screen_height // 4))
+        self.screen.blit(title, title_rect)
+        
+        # Save slots
+        for i in range(3):
+            # Get display name for the slot
+            slot_name = model.get_save_slot_display_name(i)
+            
+            # Changed highlight color to blue (R:0, G:150, B:255) for selected item
+            color = (0, 150, 255) if i == model.save_menu_selected_item else (255, 255, 255)
+            
+            # Render slot with number
+            text = self.font.render(f"Slot {i+1}: {slot_name}", True, color)
+            rect = text.get_rect(center=(screen_width // 2, screen_height // 2 + i * 60))
+            self.screen.blit(text, rect)
+        
+        # Back option
+        color = (0, 150, 255) if 3 == model.save_menu_selected_item else (255, 255, 255)
+        text = self.font.render("Back", True, color)
+        rect = text.get_rect(center=(screen_width // 2, screen_height // 2 + 3 * 60))
+        self.screen.blit(text, rect)
     
     def _render_level(self, level):
         # Render level layout

@@ -6,7 +6,7 @@ class GameModel:
         self.enemies = []
         self.items = []
         self.space_pressed = False  # Add space key state
-        self.game_state = "MENU"  # States: MENU, GAME, SETTINGS, EXIT
+        self.game_state = "MENU"  # States: MENU, GAME, SETTINGS, EXIT, SAVE_MENU
         self.selected_menu_item = 0
         self.menu_items = ["Start Game", "Settings", "Exit"]
         self.running = True
@@ -18,6 +18,11 @@ class GameModel:
         self.fx_volume = 100
         self.settings_items = ["Main Volume", "Music Volume", "FX Volume", "Back"]
         self.active_slider = None  # For slider adjustment
+        
+        # Save game menu state
+        self.save_menu_selected_item = 0
+        self.save_slots = [None, None, None]  # Will store save game names or None if empty
+        self.save_menu_items = ["Slot 1", "Slot 2", "Slot 3", "Back"]
         
     def update(self):
         # Update game state
@@ -50,7 +55,7 @@ class GameModel:
     def select_menu_item(self):
         selected = self.menu_items[self.selected_menu_item]
         if selected == "Start Game":
-            self.game_state = "GAME"
+            self.game_state = "SAVE_MENU"
         elif selected == "Settings":
             self.game_state = "SETTINGS"
         elif selected == "Exit":
@@ -74,3 +79,31 @@ class GameModel:
     def select_settings_item(self):
         if self.settings_items[self.settings_selected_item] == "Back":
             self.game_state = "MENU"
+            
+    # Save game menu methods
+    def select_next_save_slot(self):
+        self.save_menu_selected_item = (self.save_menu_selected_item + 1) % len(self.save_menu_items)
+        
+    def select_previous_save_slot(self):
+        self.save_menu_selected_item = (self.save_menu_selected_item - 1) % len(self.save_menu_items)
+        
+    def select_save_slot(self):
+        selected = self.save_menu_items[self.save_menu_selected_item]
+        if selected == "Back":
+            self.game_state = "MENU"
+        else:
+            # Start game with selected save slot
+            slot_index = self.save_menu_selected_item
+            self.game_state = "GAME"
+            # Here you would load the save file if it exists
+            # For now, we'll just start a new game
+            
+    def get_save_slot_display_name(self, slot_index):
+        """Returns the display name for a save slot"""
+        if slot_index < 0 or slot_index >= len(self.save_slots):
+            return "Invalid Slot"
+            
+        if self.save_slots[slot_index] is None:
+            return "New Game"
+        else:
+            return self.save_slots[slot_index]

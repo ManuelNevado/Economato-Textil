@@ -24,6 +24,13 @@ class GameModel:
         self.save_slots = [None, None, None]  # Will store save game names or None if empty
         self.save_menu_items = ["Slot 1", "Slot 2", "Slot 3", "Back"]
         
+        # Mouse interaction state
+        self.hovered_menu_item = -1
+        self.hovered_settings_item = -1
+        self.hovered_save_menu_item = -1
+        self.is_dragging_slider = False
+        self.dragged_slider_index = -1
+        
     def update(self):
         # Update game state
         pass
@@ -55,7 +62,7 @@ class GameModel:
     def select_menu_item(self):
         selected = self.menu_items[self.selected_menu_item]
         if selected == "Start Game":
-            self.game_state = "SAVE_MENU"
+            self.game_state = "SAVE_MENU"  # Changed from "GAME" to "SAVE_MENU"
         elif selected == "Settings":
             self.game_state = "SETTINGS"
         elif selected == "Exit":
@@ -107,3 +114,78 @@ class GameModel:
             return "New Game"
         else:
             return self.save_slots[slot_index]
+
+    def set_hovered_menu_item(self, index):
+        """Set which menu item is being hovered by the mouse"""
+        if 0 <= index < len(self.menu_items):
+            self.hovered_menu_item = index
+        else:
+            self.hovered_menu_item = -1
+            
+    def set_hovered_settings_item(self, index):
+        """Set which settings item is being hovered by the mouse"""
+        if 0 <= index < len(self.settings_items):
+            self.hovered_settings_item = index
+        else:
+            self.hovered_settings_item = -1
+            
+    def set_hovered_save_menu_item(self, index):
+        """Set which save menu item is being hovered by the mouse"""
+        if 0 <= index < len(self.save_menu_items):
+            self.hovered_save_menu_item = index
+        else:
+            self.hovered_save_menu_item = -1
+            
+    def handle_menu_click(self, index):
+        """Handle a mouse click on a menu item"""
+        if 0 <= index < len(self.menu_items):
+            self.selected_menu_item = index
+            self.select_menu_item()
+            
+    def handle_settings_click(self, index):
+        """Handle a mouse click on a settings item"""
+        if 0 <= index < len(self.settings_items):
+            self.settings_selected_item = index
+            if index == len(self.settings_items) - 1:  # Back button
+                self.select_settings_item()
+                
+    def handle_save_menu_click(self, index):
+        """Handle a mouse click on a save menu item"""
+        if 0 <= index < len(self.save_menu_items):
+            self.save_menu_selected_item = index
+            self.select_save_slot()
+            
+    def start_slider_drag(self, slider_index):
+        """Start dragging a slider"""
+        if 0 <= slider_index < len(self.settings_items) - 1:  # Exclude Back button
+            self.is_dragging_slider = True
+            self.dragged_slider_index = slider_index
+            self.settings_selected_item = slider_index
+            
+    def end_slider_drag(self):
+        """End dragging a slider"""
+        self.is_dragging_slider = False
+        self.dragged_slider_index = -1
+        
+    def update_slider_value(self, x_position, slider_rect):
+        """Update a slider value based on mouse x position"""
+        if not self.is_dragging_slider or self.dragged_slider_index < 0:
+            return
+            
+        # Calculate percentage based on position within slider
+        slider_start = slider_rect[0]
+        slider_width = slider_rect[2]
+        
+        # Ensure x_position is within slider bounds
+        x_position = max(slider_start, min(slider_start + slider_width, x_position))
+        
+        # Calculate percentage (0-100)
+        percentage = int(((x_position - slider_start) / slider_width) * 100)
+        
+        # Update the appropriate volume
+        if self.dragged_slider_index == 0:  # Main Volume
+            self.main_volume = percentage
+        elif self.dragged_slider_index == 1:  # Music Volume
+            self.music_volume = percentage
+        elif self.dragged_slider_index == 2:  # FX Volume
+            self.fx_volume = percentage

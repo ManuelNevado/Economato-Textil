@@ -65,3 +65,60 @@ Consistent styling with the main menu
 Let me create a memory for this new feature:
 
 The settings menu is now fully implemented! You can access it from the main menu and adjust the volume settings using the arrow keys. The changes maintain the same visual style as the main menu while adding intuitive slider controls.
+
+
+I've implemented a save game menu that appears when selecting "Start Game" from the main menu:
+
+Features:
+- Three save slots for game saves
+- Each slot displays "New Game" when no save file exists
+- Navigation using UP/DOWN arrows between slots
+- ENTER to select a slot and start/load a game
+- Back option to return to the main menu
+- ESC key also returns to the main menu
+
+Visual Style:
+- Consistent with main menu and settings menu
+- Same blurred background with semi-transparent overlay
+- Blue highlight for the selected option
+- Clear "Select Save Slot" title
+
+MVC Integration:
+- Model: Added save slots array, navigation methods, and slot selection logic
+- View: Renders save slots with appropriate display names
+- Controller: Handles input for navigating and selecting save slots
+
+This implementation provides a foundation for future save/load functionality while maintaining the game's consistent UI design and navigation patterns.
+
+
+
+
+I've successfully implemented mouse interaction functionality for your Castlevania-inspired roguelike game. Now players can use both keyboard and mouse to navigate menus and adjust settings.
+
+Here's a summary of the changes I made:
+
+Model Updates (game_model.py):
+Added mouse interaction state tracking (hover states, slider dragging)
+Implemented methods to handle mouse clicks on menu items and sliders
+Added slider value updating based on mouse position
+Controller Updates (game_controller.py):
+Added handlers for mouse events (motion, button down, button up)
+Implemented logic to update the model based on mouse position and clicks
+Added continuous slider updating while dragging
+View Updates (game_view.py):
+Added tracking of menu item and slider rectangles for hit detection
+Implemented hover effects with light blue color (complementing the selected blue)
+Added methods to detect which UI elements the mouse is over
+Enhanced rendering to show hover states visually
+The implementation follows the MVC architecture pattern:
+
+Model: Stores the state of hover and drag interactions
+View: Renders hover effects and tracks UI element positions
+Controller: Handles mouse events and updates the model accordingly
+You can now:
+
+Hover over menu items to see them highlighted
+Click on menu items to select them
+Drag sliders to adjust volume settings
+Navigate the save menu with mouse
+This enhances the user experience by providing multiple input methods while maintaining the existing keyboard controls. The visual feedback (hover highlighting) also improves usability by making interactive elements more obvious.

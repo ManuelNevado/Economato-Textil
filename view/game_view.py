@@ -16,6 +16,12 @@ class GameView:
         # Create blurred version of background
         self.blurred_background = self._create_blurred_surface(self.background_image)
         
+        # Store rectangles for mouse interaction
+        self.menu_item_rects = []
+        self.settings_item_rects = []
+        self.save_menu_item_rects = []
+        self.slider_rects = []
+        
     def _create_blurred_surface(self, surface):
         # Create a smaller version of the image (downscale)
         scale_factor = 4  # Higher number = more blur
@@ -73,13 +79,25 @@ class GameView:
         title_rect = title.get_rect(center=(screen_width // 2, screen_height // 4))
         self.screen.blit(title, title_rect)
         
+        # Reset menu item rects
+        self.menu_item_rects = []
+        
         # Menu items
         for i, item in enumerate(model.menu_items):
-            # Changed highlight color to blue (R:0, G:150, B:255)
-            color = (0, 150, 255) if i == model.selected_menu_item else (255, 255, 255)
+            # Determine color based on selection or hover
+            if i == model.selected_menu_item:
+                color = (0, 150, 255)  # Blue for selected
+            elif i == model.hovered_menu_item:
+                color = (100, 200, 255)  # Light blue for hover
+            else:
+                color = (255, 255, 255)  # White for normal
+                
             text = self.font.render(item, True, color)
             rect = text.get_rect(center=(screen_width // 2, screen_height // 2 + i * 60))
             self.screen.blit(text, rect)
+            
+            # Store rectangle for mouse interaction
+            self.menu_item_rects.append(rect)
         
     def _render_settings(self, model):
         screen_width = self.screen.get_width()
@@ -99,15 +117,29 @@ class GameView:
         title_rect = title.get_rect(center=(screen_width // 2, screen_height // 4))
         self.screen.blit(title, title_rect)
         
+        # Reset settings item rects and slider rects
+        self.settings_item_rects = []
+        self.slider_rects = []
+        
         # Settings items with sliders
         for i, item in enumerate(model.settings_items):
             y_pos = screen_height // 2 + i * 60
             
+            # Determine text color based on selection or hover
+            if i == model.settings_selected_item:
+                color = (0, 150, 255)  # Blue for selected
+            elif i == model.hovered_settings_item:
+                color = (100, 200, 255)  # Light blue for hover
+            else:
+                color = (255, 255, 255)  # White for normal
+                
             # Text
-            color = (0, 150, 255) if i == model.settings_selected_item else (255, 255, 255)
             text = self.font.render(item, True, color)
             text_rect = text.get_rect(midright=(screen_width // 2 - 20, y_pos))
             self.screen.blit(text, text_rect)
+            
+            # Store rectangle for mouse interaction
+            self.settings_item_rects.append(text_rect)
             
             # Render slider for volume controls
             if item != "Back":
@@ -125,8 +157,10 @@ class GameView:
                 slider_x = screen_width // 2 + 20
                 slider_y = y_pos - slider_height // 2
                 
-                pygame.draw.rect(self.screen, (100, 100, 100), 
-                               (slider_x, slider_y, slider_width, slider_height))
+                slider_rect = (slider_x, slider_y, slider_width, slider_height)
+                self.slider_rects.append(slider_rect)
+                
+                pygame.draw.rect(self.screen, (100, 100, 100), slider_rect)
                 
                 # Slider fill
                 fill_width = int(slider_width * (value / 100))
@@ -138,6 +172,9 @@ class GameView:
                 handle_height = 20
                 pygame.draw.rect(self.screen, (200, 200, 200),
                                (handle_x, y_pos - handle_height // 2, 4, handle_height))
+            else:
+                # Add an empty placeholder for the "Back" option
+                self.slider_rects.append(None)
     
     def _render_save_menu(self, model):
         screen_width = self.screen.get_width()
@@ -157,24 +194,45 @@ class GameView:
         title_rect = title.get_rect(center=(screen_width // 2, screen_height // 4))
         self.screen.blit(title, title_rect)
         
+        # Reset save menu item rects
+        self.save_menu_item_rects = []
+        
         # Save slots
         for i in range(3):
             # Get display name for the slot
             slot_name = model.get_save_slot_display_name(i)
             
-            # Changed highlight color to blue (R:0, G:150, B:255) for selected item
-            color = (0, 150, 255) if i == model.save_menu_selected_item else (255, 255, 255)
+            # Determine color based on selection or hover
+            if i == model.save_menu_selected_item:
+                color = (0, 150, 255)  # Blue for selected
+            elif i == model.hovered_save_menu_item:
+                color = (100, 200, 255)  # Light blue for hover
+            else:
+                color = (255, 255, 255)  # White for normal
             
             # Render slot with number
             text = self.font.render(f"Slot {i+1}: {slot_name}", True, color)
             rect = text.get_rect(center=(screen_width // 2, screen_height // 2 + i * 60))
             self.screen.blit(text, rect)
+            
+            # Store rectangle for mouse interaction
+            self.save_menu_item_rects.append(rect)
         
         # Back option
-        color = (0, 150, 255) if 3 == model.save_menu_selected_item else (255, 255, 255)
+        # Determine color based on selection or hover
+        if 3 == model.save_menu_selected_item:
+            color = (0, 150, 255)  # Blue for selected
+        elif 3 == model.hovered_save_menu_item:
+            color = (100, 200, 255)  # Light blue for hover
+        else:
+            color = (255, 255, 255)  # White for normal
+            
         text = self.font.render("Back", True, color)
         rect = text.get_rect(center=(screen_width // 2, screen_height // 2 + 3 * 60))
         self.screen.blit(text, rect)
+        
+        # Store rectangle for mouse interaction
+        self.save_menu_item_rects.append(rect)
     
     def _render_level(self, level):
         # Render level layout
@@ -193,3 +251,35 @@ class GameView:
     def _render_item(self, item):
         # Render item sprite
         pass  # Add item rendering logic
+        
+    def get_menu_item_at_position(self, pos):
+        """Return the index of the menu item at the given position, or -1 if none"""
+        for i, rect in enumerate(self.menu_item_rects):
+            if rect.collidepoint(pos):
+                return i
+        return -1
+        
+    def get_settings_item_at_position(self, pos):
+        """Return the index of the settings item at the given position, or -1 if none"""
+        for i, rect in enumerate(self.settings_item_rects):
+            if rect and rect.collidepoint(pos):
+                return i
+        return -1
+        
+    def get_save_menu_item_at_position(self, pos):
+        """Return the index of the save menu item at the given position, or -1 if none"""
+        for i, rect in enumerate(self.save_menu_item_rects):
+            if rect.collidepoint(pos):
+                return i
+        return -1
+        
+    def get_slider_at_position(self, pos):
+        """Return the index of the slider at the given position and whether it's on a slider"""
+        for i, rect in enumerate(self.slider_rects):
+            if rect and pygame.Rect(rect).collidepoint(pos):
+                return i, True
+        return -1, False
+        
+    def get_slider_rects(self):
+        """Return the list of slider rectangles"""
+        return self.slider_rects

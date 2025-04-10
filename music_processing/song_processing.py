@@ -2,9 +2,12 @@ from pydub import AudioSegment
 import numpy as np
 import simpleaudio as sa 
 import os
+import sys
+import argparse
+from pathlib import Path
 
 
-def convert_to_8bit_simple(input_file, output_file="8-bit-song-simple", sample_rate=8000, bit_depth=8):
+def convert_to_8bit_simple(input_file, output_file=None, sample_rate=8000, bit_depth=8):
     """
     Simple 8-bit conversion with basic sample rate and bit depth reduction.
     This is the original algorithm.
@@ -28,17 +31,21 @@ def convert_to_8bit_simple(input_file, output_file="8-bit-song-simple", sample_r
         channels=audio.channels
     )
 
+    # Generar nombre de salida si no se especificó
+    if output_file is None:
+        input_path = Path(input_file)
+        output_file = f"{input_path.stem}_simple_8bit.wav"
+    elif not output_file.endswith('.wav'):
+        output_file += '.wav'
+    
     # Guardar archivo
-    if output_file:
-        if not output_file.endswith('.wav'):
-            output_file += '.wav'
-        new_audio.export(output_file, format="wav")
-        print(f"Simple 8-bit version saved as: {output_file}")
+    new_audio.export(output_file, format="wav")
+    print(f"Simple 8-bit version saved as: {output_file}")
     
     return new_audio
 
 
-def convert_to_8bit(input_file, output_file="8-bit-song", sample_rate=8000, bit_depth=8, 
+def convert_to_8bit(input_file, output_file=None, sample_rate=8000, bit_depth=8, 
                    square_wave_effect=0.3, quantize_factor=0.8, distortion=0.2):
     """
     Convert audio to 8-bit style with various retro effects.
@@ -93,17 +100,21 @@ def convert_to_8bit(input_file, output_file="8-bit-song", sample_rate=8000, bit_
     # Add final touch - slight volume boost to compensate for bit reduction
     new_audio = new_audio + 3
     
+    # Generar nombre de salida si no se especificó
+    if output_file is None:
+        input_path = Path(input_file)
+        output_file = f"{input_path.stem}_enhanced_8bit.wav"
+    elif not output_file.endswith('.wav'):
+        output_file += '.wav'
+    
     # Save file with extension
-    if output_file:
-        if not output_file.endswith('.wav'):
-            output_file += '.wav'
-        new_audio.export(output_file, format="wav")
-        print(f"Enhanced 8-bit version saved as: {output_file}")
+    new_audio.export(output_file, format="wav")
+    print(f"Enhanced 8-bit version saved as: {output_file}")
     
     return new_audio
 
 
-def convert_to_chiptune(input_file, output_file="chiptune-song", sample_rate=11025, 
+def convert_to_chiptune(input_file, output_file=None, sample_rate=11025, 
                        bit_depth=8, arpeggio_effect=0.2):
     """
     Convert audio to chiptune style with classic video game console effects.
@@ -151,56 +162,130 @@ def convert_to_chiptune(input_file, output_file="chiptune-song", sample_rate=110
         channels=audio.channels
     )
     
+    # Generar nombre de salida si no se especificó
+    if output_file is None:
+        input_path = Path(input_file)
+        output_file = f"{input_path.stem}_chiptune.wav"
+    elif not output_file.endswith('.wav'):
+        output_file += '.wav'
+    
     # Save file with extension
-    if output_file:
-        if not output_file.endswith('.wav'):
-            output_file += '.wav'
-        new_audio.export(output_file, format="wav")
-        print(f"Chiptune version saved as: {output_file}")
+    new_audio.export(output_file, format="wav")
+    print(f"Chiptune version saved as: {output_file}")
     
     return new_audio
 
 
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        description='Convert audio to 8-bit or chiptune style with various effects',
+        epilog='''
+Examples:
+  python song_processing.py mi_cancion.mp3                    # Modo enhanced por defecto
+  python song_processing.py mi_cancion.mp3 -m simple          # Modo simple
+  python song_processing.py mi_cancion.mp3 -m chiptune        # Modo chiptune
+  python song_processing.py mi_cancion.mp3 -o nombre_salida   # Especificar nombre de salida
+  python song_processing.py mi_cancion.mp3 -sr 6000 -bd 6     # Ajustar parámetros específicos
+        ''',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    parser.add_argument('input_file', help='Ruta al archivo de audio de entrada')
+    parser.add_argument('-o', '--output', help='Nombre del archivo de salida (sin extensión, se añadirá .wav)')
+    parser.add_argument('-m', '--mode', choices=['simple', 'enhanced', 'chiptune'], 
+                        default='enhanced', help='Modo de conversión (por defecto: enhanced)')
+    parser.add_argument('-sr', '--sample-rate', type=int, 
+                        help='Tasa de muestreo en Hz (menor = más retro)')
+    parser.add_argument('-bd', '--bit-depth', type=int, 
+                        help='Profundidad de bits (8 es clásico 8-bit)')
+    parser.add_argument('-sq', '--square-effect', type=float, 
+                        help='Efecto de onda cuadrada (0-1)')
+    parser.add_argument('-qf', '--quantize-factor', type=float, 
+                        help='Factor de cuantización (0-1)')
+    parser.add_argument('-d', '--distortion', type=float, 
+                        help='Cantidad de distorsión (0-1)')
+    parser.add_argument('-a', '--arpeggio', type=float, 
+                        help='Efecto de arpegio para chiptune (0-1)')
+    
+    return parser.parse_args()
+
+
 # Example usage with different parameter combinations
 if __name__ == "__main__":
-    input_file = "holy-pipes.mp3"
-    
-    # Check if file exists
-    if not os.path.exists(input_file):
-        print(f"Error: Input file '{input_file}' not found.")
+    # Si no hay argumentos, usar valores por defecto
+    if len(sys.argv) == 1:
+        input_file = "holy-pipes.mp3"
+        
+        # Check if file exists
+        if not os.path.exists(input_file):
+            print(f"Error: Input file '{input_file}' not found.")
+            print("Usage: python song_processing.py input_file [options]")
+            print("Run with --help for more information")
+            sys.exit(1)
+        else:
+            # Original simple algorithm
+            convert_to_8bit_simple(input_file)
+            
+            # Enhanced 8-bit version (more extreme effects)
+            convert_to_8bit(
+                input_file, 
+                sample_rate=6000,
+                bit_depth=6,
+                square_wave_effect=0.5,
+                quantize_factor=0.9,
+                distortion=0.3
+            )
+            
+            # Chiptune version (NES/GameBoy style)
+            convert_to_chiptune(
+                input_file, 
+                sample_rate=11025,
+                arpeggio_effect=0.3
+            )
     else:
-        # Original simple algorithm
-        convert_to_8bit_simple(
-            input_file, 
-            "holy_pipes_simple_8bit.wav"
-        )
+        # Procesar argumentos de línea de comandos
+        args = parse_arguments()
         
-        # Enhanced 8-bit version (more extreme effects)
-        convert_to_8bit(
-            input_file, 
-            "holy_pipes_enhanced_8bit.wav",
-            sample_rate=6000,
-            bit_depth=6,
-            square_wave_effect=0.5,
-            quantize_factor=0.9,
-            distortion=0.3
-        )
+        # Verificar que el archivo existe
+        if not os.path.exists(args.input_file):
+            print(f"Error: Input file '{args.input_file}' not found.")
+            sys.exit(1)
         
-        # More balanced 8-bit version
-        convert_to_8bit(
-            input_file, 
-            "holy_pipes_8bit.wav",
-            sample_rate=8000,
-            bit_depth=8,
-            square_wave_effect=0.3,
-            quantize_factor=0.7,
-            distortion=0.15
-        )
-        
-        # Chiptune version (NES/GameBoy style)
-        convert_to_chiptune(
-            input_file, 
-            "holy_pipes_chiptune.wav",
-            sample_rate=11025,
-            arpeggio_effect=0.3
-        )
+        # Convertir según el modo seleccionado
+        if args.mode == 'simple':
+            kwargs = {}
+            if args.sample_rate:
+                kwargs['sample_rate'] = args.sample_rate
+            if args.bit_depth:
+                kwargs['bit_depth'] = args.bit_depth
+                
+            convert_to_8bit_simple(args.input_file, args.output, **kwargs)
+            
+        elif args.mode == 'enhanced':
+            kwargs = {}
+            if args.sample_rate:
+                kwargs['sample_rate'] = args.sample_rate
+            if args.bit_depth:
+                kwargs['bit_depth'] = args.bit_depth
+            if args.square_effect is not None:
+                kwargs['square_wave_effect'] = args.square_effect
+            if args.quantize_factor is not None:
+                kwargs['quantize_factor'] = args.quantize_factor
+            if args.distortion is not None:
+                kwargs['distortion'] = args.distortion
+                
+            convert_to_8bit(args.input_file, args.output, **kwargs)
+            
+        elif args.mode == 'chiptune':
+            kwargs = {}
+            if args.sample_rate:
+                kwargs['sample_rate'] = args.sample_rate
+            if args.bit_depth:
+                kwargs['bit_depth'] = args.bit_depth
+            if args.arpeggio is not None:
+                kwargs['arpeggio_effect'] = args.arpeggio
+                
+            convert_to_chiptune(args.input_file, args.output, **kwargs)
+            
+        print("Conversion complete!")

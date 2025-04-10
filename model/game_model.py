@@ -11,6 +11,12 @@ class GameModel:
         self.menu_items = ["Start Game", "Settings", "Exit"]
         self.running = True
         
+        # Red ball properties
+        self.ball_x = 400  # Starting x position (center of screen)
+        self.ball_y = 300  # Starting y position (center of screen)
+        self.ball_radius = 20
+        self.ball_speed = 5
+        
         # Settings state
         self.settings_selected_item = 0
         self.main_volume = 100
@@ -45,7 +51,9 @@ class GameModel:
         
     def update(self):
         # Update game state
-        pass
+        if self.game_state == "GAME":
+            # Any game state updates would go here
+            pass
         
     def initialize_level(self):
         # Initialize level layout and entities
@@ -97,43 +105,17 @@ class GameModel:
             self.fx_volume = max(0, min(100, self.fx_volume + amount))
             if self.audio_manager:
                 self.audio_manager.update_fx_volume(self.fx_volume)
-    
-    def update_slider_value(self, mouse_x, slider_rect):
-        """Update slider value based on mouse position"""
-        if not slider_rect:
-            return
-            
-        # Calculate percentage based on mouse position
-        slider_start = slider_rect[0]
-        slider_width = slider_rect[2]
-        relative_x = max(0, min(slider_width, mouse_x - slider_start))
-        percentage = int((relative_x / slider_width) * 100)
+                
+    def move_ball(self, dx, dy):
+        """Move the ball by the given delta x and y, keeping it within screen bounds"""
+        # Update ball position
+        self.ball_x += dx * self.ball_speed
+        self.ball_y += dy * self.ball_speed
         
-        # Update the appropriate volume
-        if self.dragged_slider_index == 0:  # Main Volume
-            self.main_volume = percentage
-            if self.audio_manager:
-                self.audio_manager.update_main_volume(self.main_volume)
-        elif self.dragged_slider_index == 1:  # Music Volume
-            self.music_volume = percentage
-            if self.audio_manager:
-                self.audio_manager.update_music_volume(self.music_volume)
-        elif self.dragged_slider_index == 2:  # FX Volume
-            self.fx_volume = percentage
-            if self.audio_manager:
-                self.audio_manager.update_fx_volume(self.fx_volume)
-    
-    def start_slider_drag(self, slider_index):
-        """Start dragging a slider"""
-        self.is_dragging_slider = True
-        self.dragged_slider_index = slider_index
-    
-    def end_slider_drag(self):
-        """End dragging a slider"""
-        self.is_dragging_slider = False
-        self.dragged_slider_index = -1
+        # Keep ball within screen bounds (800x600)
+        self.ball_x = max(self.ball_radius, min(800 - self.ball_radius, self.ball_x))
+        self.ball_y = max(self.ball_radius, min(600 - self.ball_radius, self.ball_y))
         
-    # Menu navigation methods
     def select_next_menu_item(self):
         self.selected_menu_item = (self.selected_menu_item + 1) % len(self.menu_items)
         
@@ -195,14 +177,14 @@ class GameModel:
             
     def select_save_slot(self):
         """Handle save slot selection"""
-        if self.save_menu_selected_item == 3:  # Back
-            self.game_state = "MENU"
-        else:
-            # Start game with selected save slot
-            slot_index = self.save_menu_selected_item
+        if self.save_menu_selected_item < 3:  # Selected a save slot
+            # Enter the game with the selected slot
             self.game_state = "GAME"
-            # Here you would load the save file if it exists
-            # For now, we'll just start a new game
+            # Reset ball position to center
+            self.ball_x = 400
+            self.ball_y = 300
+        else:  # Selected Back
+            self.game_state = "MENU"
             
     def get_save_slot_display_name(self, slot_index):
         """Returns the display name for a save slot"""
@@ -213,3 +195,38 @@ class GameModel:
             return "New Game"
         else:
             return self.save_slots[slot_index]
+
+    def update_slider_value(self, mouse_x, slider_rect):
+        """Update slider value based on mouse position"""
+        if not slider_rect:
+            return
+            
+        # Calculate percentage based on mouse position
+        slider_start = slider_rect[0]
+        slider_width = slider_rect[2]
+        relative_x = max(0, min(slider_width, mouse_x - slider_start))
+        percentage = int((relative_x / slider_width) * 100)
+        
+        # Update the appropriate volume
+        if self.dragged_slider_index == 0:  # Main Volume
+            self.main_volume = percentage
+            if self.audio_manager:
+                self.audio_manager.update_main_volume(self.main_volume)
+        elif self.dragged_slider_index == 1:  # Music Volume
+            self.music_volume = percentage
+            if self.audio_manager:
+                self.audio_manager.update_music_volume(self.music_volume)
+        elif self.dragged_slider_index == 2:  # FX Volume
+            self.fx_volume = percentage
+            if self.audio_manager:
+                self.audio_manager.update_fx_volume(self.fx_volume)
+    
+    def start_slider_drag(self, slider_index):
+        """Start dragging a slider"""
+        self.is_dragging_slider = True
+        self.dragged_slider_index = slider_index
+    
+    def end_slider_drag(self):
+        """End dragging a slider"""
+        self.is_dragging_slider = False
+        self.dragged_slider_index = -1

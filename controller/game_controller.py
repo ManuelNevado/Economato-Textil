@@ -30,6 +30,24 @@ class GameController:
         # Update game state
         self.model.update()
         
+        # Move the ball based on key states when in GAME state
+        if self.model.game_state == "GAME":
+            keys = pygame.key.get_pressed()
+            dx, dy = 0, 0
+            
+            if keys[pygame.K_LEFT]:
+                dx = -1
+            if keys[pygame.K_RIGHT]:
+                dx = 1
+            if keys[pygame.K_UP]:
+                dy = -1
+            if keys[pygame.K_DOWN]:
+                dy = 1
+                
+            # Apply movement if any direction key is pressed
+            if dx != 0 or dy != 0:
+                self.model.move_ball(dx, dy)
+        
         # Update slider if dragging
         if self.model.is_dragging_slider:
             mouse_pos = pygame.mouse.get_pos()
@@ -64,11 +82,7 @@ class GameController:
             self.model.game_state = "MENU"
 
     def _handle_game_input(self, event):
-        if event.key == pygame.K_LEFT:
-            pass  # Add player movement left
-        elif event.key == pygame.K_RIGHT:
-            pass  # Add player movement right
-        elif event.key == pygame.K_ESCAPE:
+        if event.key == pygame.K_ESCAPE:
             self.model.game_state = "MENU"
             
     def _handle_save_menu_input(self, event):

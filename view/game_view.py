@@ -42,6 +42,8 @@ class GameView:
             self._render_settings(model)
         elif model.game_state == "SAVE_MENU":
             self._render_save_menu(model)
+        elif model.game_state == "GAME":
+            self._render_game(model)
         else:
             # Draw background
             self.screen.blit(self.background_image, (0, 0))
@@ -233,6 +235,29 @@ class GameView:
         
         # Store rectangle for mouse interaction
         self.save_menu_item_rects.append(rect)
+    
+    def _render_game(self, model):
+        """Render the game state with the red ball on black background"""
+        # Fill screen with black background
+        self.screen.fill((0, 0, 0))
+        
+        # Draw the red ball
+        pygame.draw.circle(
+            self.screen, 
+            (255, 0, 0),  # Red color
+            (int(model.ball_x), int(model.ball_y)),  # Position
+            model.ball_radius  # Radius
+        )
+        
+        # Draw instructions text
+        instructions = self.font.render("Use arrow keys to move", True, (255, 255, 255))
+        instructions_rect = instructions.get_rect(center=(self.screen.get_width() // 2, 30))
+        self.screen.blit(instructions, instructions_rect)
+        
+        # Draw ESC text
+        esc_text = pygame.font.Font(None, 24).render("Press ESC to return to menu", True, (200, 200, 200))
+        esc_rect = esc_text.get_rect(bottomright=(self.screen.get_width() - 10, self.screen.get_height() - 10))
+        self.screen.blit(esc_text, esc_rect)
     
     def _render_level(self, level):
         # Render level layout

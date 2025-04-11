@@ -100,3 +100,19 @@ def calculate_y_position(index):
 | Transparencia | 50  | 120-150 | 255 |
 | Escala (porcentaje) | 50% | 75%-90% | 100% |
 | Espaciado vertical | 30  | 50-70 | 100 |
+
+
+Algoritmos de generación de mazmorras:
+Cellular Automata (autómatas celulares)
+Binary Space Partitioning (BSP)
+Algoritmos de habitaciones y pasillos
+Generación basada en Drunkard Walk
+Integración en tu arquitectura MVC:
+Model: Contendría la lógica de generación y almacenaría la estructura del nivel
+View: Renderizaría el nivel generado con los assets apropiados
+Controller: Manejaría la interacción del jugador con el nivel
+Características que podrías incluir:
+Diferentes tipos de habitaciones (combate, tesoro, jefes)
+Variedad de enemigos según la zona o profundidad
+Distribución procedural de objetos y power-ups
+Dificultad progresiva según avanza el jugador

@@ -26,7 +26,7 @@ class AudioManager:
         self.fx_path = os.path.join(self.base_path, 'music_processing')
         
         # Load default music
-        self.load_music('menu', 'holy-pipes.mp3')
+        self.load_music('menu', 'holy_pipes_8bit_old.wav')
     
     def load_music(self, name, filename):
         """Load a music track"""
